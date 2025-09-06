@@ -7,7 +7,7 @@ const router = Router();
 router.post(
   "/register",
   authController.register.bind(authController) as RequestHandler
-  //   authController.register.bind // TODO: why this wrong
+  // ?  authController.register.bind // ? ASK: why this wrong
 );
 
 // POST /api/auth/login

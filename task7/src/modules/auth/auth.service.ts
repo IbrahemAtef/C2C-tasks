@@ -1,4 +1,6 @@
+import { CustomError } from "../../shared/utils/exception";
 import { removeFields } from "../../shared/utils/object.util";
+import { HttpErrorStatus } from "../../shared/utils/util.types";
 import { userService } from "../users/user.service";
 import {
   LoginDTO,
@@ -17,6 +19,13 @@ export class AuthService {
 
   public async login(payload: LoginDTO): Promise<LoginResponseDTO | null> {
     const foundUser = this._userService.findUserByEmail(payload.email);
+
+    if (!foundUser)
+      throw new CustomError(
+        "User profile not found",
+        "AUTH",
+        HttpErrorStatus.NotFound
+      );
 
     const isPasswordMatch = await verifyArgonHash(
       payload.password,

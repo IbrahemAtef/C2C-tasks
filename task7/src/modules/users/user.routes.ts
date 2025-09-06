@@ -7,6 +7,8 @@ const router = Router();
 
 const userController = new UserController();
 
+userController.seedAdmin();
+
 // GET /api/users/me - Get my profile
 router.get("/me", isAuthenticated, userController.getUserProfile);
 
@@ -19,11 +21,6 @@ router.post(
 );
 
 // PATCH /api/users/me - Update user
-router.patch(
-  "/me",
-  isAuthenticated,
-  requireRole(["COACH"]),
-  userController.updateUserProfile
-);
+router.patch("/me", isAuthenticated, userController.updateUserProfile);
 
 export const userRouter = router;

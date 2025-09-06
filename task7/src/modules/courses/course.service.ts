@@ -2,7 +2,6 @@ import { GenericRepository } from "../../shared/generic_repository";
 import { CustomError } from "../../shared/utils/exception";
 import { newId, now } from "../../shared/utils/util";
 import { HttpErrorStatus } from "../../shared/utils/util.types";
-import { Role } from "../users/util/user.types";
 import { ICourse } from "./course.entity";
 import { CreateCourseData } from "./types/course.dto";
 
@@ -39,6 +38,7 @@ class CourseService {
 
   updateCourse(id: string, updaterId: string, data: Partial<ICourse>): ICourse {
     const course = this.repository.findById(id);
+
     if (!course)
       throw new CustomError(
         "Course not found",
@@ -58,17 +58,20 @@ class CourseService {
       ...data,
       updatedAt: now(),
     });
+
     if (!updated)
       throw new CustomError(
         "Failed to update course",
         "COURSE",
         HttpErrorStatus.InternalServerError
       );
+
     return updated;
   }
 
   deleteCourse(id: string, deleterId: string) {
     const course = this.repository.findById(id);
+
     if (!course)
       throw new CustomError(
         "Course not found",
@@ -85,12 +88,14 @@ class CourseService {
     }
 
     const deleted = this.repository.delete(id);
+
     if (!deleted)
       throw new CustomError(
         "Failed to delete course",
         "COURSE",
         HttpErrorStatus.InternalServerError
       );
+
     return { message: "Course deleted successfully" };
   }
 }

@@ -33,14 +33,8 @@ class UserService {
     return removeFields(updatedUser, ["password", "role"]);
   }
 
-  findUserByEmail(email: string): IUser {
+  findUserByEmail(email: string): IUser | undefined {
     const userFound = this.repository.findByKey("email", email);
-    if (!userFound)
-      throw new CustomError(
-        "User profile not found",
-        "USER",
-        HttpErrorStatus.NotFound
-      );
     return userFound;
   }
 
@@ -53,6 +47,7 @@ class UserService {
         "USER",
         HttpErrorStatus.Conflict
       );
+
     const hashedValue = await createArgonHash(payload.password);
 
     const user: IUser = {
@@ -68,6 +63,24 @@ class UserService {
     const createdUser = this.repository.create(user);
 
     return removeFields(createdUser, ["password", "role"]);
+  }
+  seedAdmin() {
+    const existing = this.findUserByEmail("admin@no.com");
+    if (!existing) {
+      const payload: IUser = {
+        id: newId(),
+        name: "Admin",
+        email: "admin@no.com",
+        password: "admin123",
+        role: "ADMIN",
+        createdAt: now(),
+        updatedAt: now(),
+      };
+      this.repository.create(payload);
+      console.log("Seeded ADMIN user");
+    } else {
+      console.log("Admin user already exists");
+    }
   }
 }
 

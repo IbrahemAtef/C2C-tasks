@@ -25,8 +25,12 @@ export class AuthController {
         req.body,
         "AUTH"
       );
+
       const user = await this.authService.register(payloadData);
-      res.create(user);
+
+      const token = singJWT({ sub: user.id, role: "STUDENT" });
+
+      res.create({ user, token });
     } catch (error) {
       res.error({
         message: "internal server error",
@@ -40,7 +44,9 @@ export class AuthController {
     next: NextFunction
   ) => {
     const payloadData = zodValidation(loginDTOSchema, req.body, "AUTH");
+
     const userData = await this.authService.login(payloadData);
+
     if (!userData) {
       res.error({
         message: "wrong credentials",
@@ -48,7 +54,9 @@ export class AuthController {
       });
       return;
     }
+
     const token = singJWT({ sub: userData.id, role: userData.role });
+
     res.ok({ user: userData, token });
   };
 }
