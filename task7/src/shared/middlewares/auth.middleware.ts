@@ -3,6 +3,7 @@ import { verifyJWT } from "../../modules/auth/util/jwt.util";
 import { CustomError } from "../utils/exception";
 import { HttpErrorStatus } from "../utils/util.types";
 
+// TODO: check if all user data required in req.user
 export const isAuthenticated = (
   req: Request,
   res: Response,
