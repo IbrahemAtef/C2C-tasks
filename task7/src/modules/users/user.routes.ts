@@ -7,8 +7,6 @@ const router = Router();
 
 const userController = new UserController();
 
-userController.seedAdmin();
-
 // GET /api/users/me - Get my profile
 router.get("/me", isAuthenticated, userController.getUserProfile);
 

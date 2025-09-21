@@ -9,10 +9,6 @@ import { CreateUser } from "./types/user.dto";
 export class UserController {
   private _userService = userService;
 
-  seedAdmin = () => {
-    this._userService.seedAdmin();
-  };
-
   // ? ASK: Is it better to create AuthRequest type or merging existing Request with user data? like this
   //?  export interface AuthRequest extends Request {
   //?    user?: JwtPayload;
