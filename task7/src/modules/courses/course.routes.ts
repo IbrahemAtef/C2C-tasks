@@ -7,13 +7,13 @@ import { requireRole } from "../../shared/middlewares/role.middleware";
 
 const router = Router();
 
-// GET /api/courses/ - Get all courses
+// GET /api/v1/courses/ - Get all courses
 router.get("/", courseController.getAllCourses);
 
-// GET /api/courses/:id - Get course by id
+// GET /api/v1/courses/:id - Get course by id
 router.get("/:id", courseController.getCourseById);
 
-// POST /api/courses/ - create new course
+// POST /api/v1/courses/ - create new course
 router.post(
   "/",
   isAuthenticated,
@@ -21,15 +21,15 @@ router.post(
   courseController.create
 );
 
-// patch /api/courses/:id - update course by id for creator
-router.patch(
+// put /api/v1/courses/:id - update course by id for creator
+router.put(
   "/:id",
   isAuthenticated,
   requireRole(["ADMIN", "COACH"]),
   courseController.update
 );
 
-// delete /api/courses/:id - delete course by id for creator
+// delete /api/v1/courses/:id - delete course by id for creator
 router.delete(
   "/:id",
   isAuthenticated,

@@ -7,17 +7,11 @@ import { zodValidation } from "../../shared/utils/zod.util";
 import { CreateUser } from "./types/user.dto";
 
 export class UserController {
-  private _userService = userService;
-
-  seedAdmin = () => {
-    this._userService.seedAdmin();
-  };
-
   // ? ASK: Is it better to create AuthRequest type or merging existing Request with user data? like this
   //?  export interface AuthRequest extends Request {
   //?    user?: JwtPayload;
   //?  }
-  getUserProfile = (req: Request, res: Response, next: NextFunction) => {
+  getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
     const sub = req.user?.sub;
 
     if (!sub)
@@ -28,12 +22,16 @@ export class UserController {
       );
 
     //? ASK:  How to use zodValidation for req.user validation ?
-    const user = this._userService.getUserProfile(sub);
+    const user = await userService.getUserProfile(sub);
 
     res.ok(user);
   };
 
-  updateUserProfile = (req: Request, res: Response, next: NextFunction) => {
+  updateUserProfile = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     const sub = req.user?.sub;
 
     if (!sub)
@@ -43,19 +41,19 @@ export class UserController {
         HttpErrorStatus.Unauthorized
       );
 
-    const user = this._userService.updateUser(sub, req.body);
+    const user = await userService.updateUser(sub, req.body);
 
     res.create(user);
   };
 
-  createCoach = (req: Request, res: Response, next: NextFunction) => {
+  createCoach = async (req: Request, res: Response, next: NextFunction) => {
     const payloadData = zodValidation<CreateUser>(
       coachProfileSchema,
       req.body,
       "USER"
     );
 
-    const user = this._userService.createUser(payloadData, "COACH");
+    const user = await userService.createUser(payloadData, "COACH");
 
     res.create(user);
   };

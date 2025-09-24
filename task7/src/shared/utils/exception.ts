@@ -16,10 +16,12 @@ export class CustomError extends Error {
 
 export const handleError = (error: unknown, res: Response) => {
   if (error instanceof CustomError) {
-    // console.log("customError", error);
     res.error({ message: error.message, statusCode: error.statusCode });
     return;
   }
   //   we should alert ourself
-  res.error({ message: "internal server error", statusCode: 500 });
+  res.error({
+    message: `internal server error the error is: ${error}`,
+    statusCode: 500,
+  });
 };

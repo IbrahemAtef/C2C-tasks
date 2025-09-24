@@ -1,20 +1,18 @@
 // src/courses/course.controller.ts
 import { Request, Response, NextFunction } from "express";
-import { CustomError } from "../../shared/utils/exception.js";
-import { HttpErrorStatus } from "../../shared/utils/util.types.js";
-import { courseService } from "./course.service.js";
-import { zodValidation } from "../../shared/utils/zod.util.js";
-import { CreateCourseData } from "./types/course.dto.js";
+import { CreateCourseData } from "./types/course.dto";
+import { CustomError } from "../../shared/utils/exception";
+import { HttpErrorStatus } from "../../shared/utils/util.types";
+import { courseService } from "./course.service";
+import { zodValidation } from "../../shared/utils/zod.util";
 import {
   courseIdSchema,
   createCourseSchema,
   updateCourseSchema,
-} from "./util/course.schema.js";
+} from "./util/course.schema";
 
 class CourseController {
-  private _courseService = courseService;
-
-  create(req: Request, res: Response, next: NextFunction) {
+  async create(req: Request, res: Response, next: NextFunction) {
     const creatorId = req.user?.sub;
 
     if (!creatorId)
@@ -30,26 +28,26 @@ class CourseController {
       "COURSE"
     );
 
-    const course = this._courseService.createCourse(payloadData, creatorId);
+    const course = await courseService.createCourse(payloadData, creatorId);
 
     res.create(course);
   }
 
-  getAllCourses(req: Request, res: Response, next: NextFunction) {
+  async getAllCourses(req: Request, res: Response, next: NextFunction) {
     // TODO Later: pagination and limit when using DB
-    const courses = this._courseService.getAllCourses();
+    const courses = await courseService.getAllCourses();
 
     res.ok(courses);
   }
 
-  getCourseById(
+  async getCourseById(
     req: Request<{ id: string }>,
     res: Response,
     next: NextFunction
   ) {
     const { id } = zodValidation(courseIdSchema, req.params, "COURSE");
 
-    const course = this._courseService.getCourseById(id);
+    const course = await courseService.getCourseById(id);
 
     res.ok(course);
   }
@@ -72,12 +70,16 @@ class CourseController {
 
     const payload = zodValidation(updateCourseSchema, req.body, "COURSE");
 
-    const updated = this._courseService.updateCourse(id, sub, payload);
+    const updated = await courseService.updateCourse(id, sub, payload);
 
     res.ok(updated);
   }
 
-  delete(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+  async delete(
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
     const sub = req.user?.sub;
 
     if (!sub)
@@ -89,7 +91,7 @@ class CourseController {
 
     const { id } = zodValidation(courseIdSchema, req.params, "COURSE");
 
-    const result = this._courseService.deleteCourse(id, sub);
+    const result = await courseService.deleteCourse(id, sub);
 
     res.delete(result);
   }
