@@ -51,9 +51,11 @@ class CourseService {
         HttpErrorStatus.Forbidden
       );
     }
+    // Prevent unsafe updates
+    const { id: _, creatorId: __, createdAt: ___, ...allowedData } = data;
 
     const updated = courseRepository.update(id, {
-      ...data,
+      ...allowedData,
       updatedAt: now(),
     });
 
