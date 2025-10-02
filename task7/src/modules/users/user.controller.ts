@@ -1,8 +1,6 @@
-import { coachProfileSchema } from "./util/user.schema";
-import { HttpErrorStatus } from "./../../shared/utils/util.types";
+import { coachProfileSchema, profileUpdateSchema } from "./util/user.schema";
 import { Request, Response, NextFunction } from "express";
 import { userService } from "./user.service";
-import { CustomError } from "../../shared/utils/exception";
 import { zodValidation } from "../../shared/utils/zod.util";
 import { CreateUser } from "./types/user.dto";
 
@@ -12,14 +10,7 @@ export class UserController {
   //?    user?: JwtPayload;
   //?  }
   getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
-    const sub = req.user?.sub;
-
-    if (!sub)
-      throw new CustomError(
-        "Unauthorized: Missing or invalid token",
-        "USER",
-        HttpErrorStatus.Unauthorized
-      );
+    const sub = req.user!.sub;
 
     //? ASK:  How to use zodValidation for req.user validation ?
     const user = await userService.getUserProfile(sub);
@@ -32,18 +23,13 @@ export class UserController {
     res: Response,
     next: NextFunction
   ) => {
-    const sub = req.user?.sub;
+    const sub = req.user!.sub;
 
-    if (!sub)
-      throw new CustomError(
-        "Unauthorized: Missing or invalid token",
-        "USER",
-        HttpErrorStatus.Unauthorized
-      );
+    const payload = zodValidation(profileUpdateSchema, req.body, "USER");
 
-    const user = await userService.updateUser(sub, req.body);
+    const user = await userService.updateUser(sub, payload);
 
-    res.create(user);
+    res.ok(user);
   };
 
   createCoach = async (req: Request, res: Response, next: NextFunction) => {

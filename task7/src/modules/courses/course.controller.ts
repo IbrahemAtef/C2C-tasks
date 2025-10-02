@@ -13,14 +13,7 @@ import {
 
 class CourseController {
   async create(req: Request, res: Response, next: NextFunction) {
-    const creatorId = req.user?.sub;
-
-    if (!creatorId)
-      throw new CustomError(
-        "Unauthorized: Missing or invalid token",
-        "COURSE",
-        HttpErrorStatus.Unauthorized
-      );
+    const creatorId = req.user!.sub;
 
     const payloadData = zodValidation<CreateCourseData>(
       createCourseSchema,
@@ -57,14 +50,7 @@ class CourseController {
     res: Response,
     next: NextFunction
   ) {
-    const sub = req.user?.sub;
-
-    if (!sub)
-      throw new CustomError(
-        "Unauthorized: Missing or invalid token",
-        "COURSE",
-        HttpErrorStatus.Unauthorized
-      );
+    const sub = req.user!.sub;
 
     const { id } = zodValidation(courseIdSchema, req.params, "COURSE");
 
@@ -80,14 +66,7 @@ class CourseController {
     res: Response,
     next: NextFunction
   ) {
-    const sub = req.user?.sub;
-
-    if (!sub)
-      throw new CustomError(
-        "Unauthorized: Missing or invalid token",
-        "COURSE",
-        HttpErrorStatus.Unauthorized
-      );
+    const sub = req.user!.sub;
 
     const { id } = zodValidation(courseIdSchema, req.params, "COURSE");
 

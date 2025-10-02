@@ -3,7 +3,7 @@ import { verifyJWT } from "../../modules/auth/util/jwt.util";
 import { CustomError } from "../utils/exception";
 import { HttpErrorStatus } from "../utils/util.types";
 
-// TODO: check if all user data required in req.user
+// TODO: putting all user data in req.user is better
 export const isAuthenticated = (
   req: Request,
   res: Response,
@@ -23,20 +23,17 @@ export const isAuthenticated = (
 
   const jwt = authHeader.replace(`Bearer `, "");
 
-  try {
-    const payload = verifyJWT(jwt);
+  const payload = verifyJWT(jwt);
 
-    req.user = payload;
-
-    next();
-    return;
-  } catch (error) {
-    return next(
-      new CustomError(
-        "Invalid or expired token",
-        "AUTH",
-        HttpErrorStatus.Unauthorized
-      )
+  if (!payload.sub)
+    throw new CustomError(
+      "Unauthorized: Missing or invalid token",
+      "AUTH",
+      HttpErrorStatus.Unauthorized
     );
-  }
+
+  req.user = payload;
+
+  next();
+  return;
 };

@@ -17,4 +17,4 @@ export const updateCourseSchema = createCourseSchema
   .partial();
 
 // Type for TypeScript inference
-export type UpdateCourseData = z.infer<typeof updateCourseSchema>;
+//?? export type UpdateCourseData = z.infer<typeof updateCourseSchema>;
