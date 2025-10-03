@@ -20,7 +20,11 @@ class UserService {
     return removeFields(userFound, ["password", "role"]);
   }
 
-  updateUser(id: string, payload: UpdateUserData): ProtectedUser {
+  async updateUser(id: string, payload: UpdateUserData) {
+    if (payload.password) {
+      const hashedValue = await createArgonHash(payload.password);
+      payload.password = hashedValue;
+    }
     const updatedUser = userRepository.update(id, payload);
     if (!updatedUser)
       throw new CustomError(
