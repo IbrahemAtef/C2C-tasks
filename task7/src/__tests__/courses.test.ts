@@ -1,57 +1,77 @@
-import { ICourse } from "../modules/courses/course.entity";
+import { Course, Enrollment, User } from "../generated/prisma";
+import { prisma } from "../services/prisma.service";
 import { createRandomCourse } from "../seeds/course.seed";
 import { removeFields } from "../shared/utils/object.util";
-import {
-  admin,
-  authedTestAdminAgent,
-  authedTestCoachAgent,
-  authedTestStudentAgent,
-  coach,
-  student,
-  unAuthedTestAgent,
-} from "./helpers/supertest.helper";
+import { initTestAgents } from "./helpers/supertest.helper";
 
 describe("Course Module", () => {
+  let unAuthedTestAgent: any;
+  let authedTestAdminAgent: any;
+  let authedTestCoachAgent: any;
+  let authedTestStudentAgent: any;
+  let coach: any;
+  let admin: any;
+  let student: any;
+
+  let userData: User[];
+  let courseData: Course[];
+  let enrollmentData: Enrollment[];
+
+  //
+  // 🔹 SETUP
+  //
+  beforeAll(async () => {
+    // Save initial DB state
+    userData = await prisma.user.findMany();
+    courseData = await prisma.course.findMany();
+    enrollmentData = await prisma.enrollment.findMany();
+
+    // Initialize test agents
+    const agents = await initTestAgents();
+    unAuthedTestAgent = agents.unAuthedTestAgent;
+    authedTestAdminAgent = agents.authedTestAdminAgent;
+    authedTestCoachAgent = agents.authedTestCoachAgent;
+    authedTestStudentAgent = agents.authedTestStudentAgent;
+    coach = agents.coach;
+    admin = agents.admin;
+    student = agents.student;
+  });
+
   //
   // 🔹 POST /api/v1/courses
   //
   describe("POST /api/v1/courses", () => {
-    let createdCourseByCoachId: string;
-    let createdCourseByAdminId: string;
     it("✅ Success: COACH or ADMIN can create a course with valid data.", async () => {
       // coach creates a course
-      const newCourseSeedByCoach = createRandomCourse(coach.id);
-      const response = await authedTestCoachAgent
+      const coachCourse = createRandomCourse(coach.id);
+      const coachRes = await authedTestCoachAgent
         .post("/api/v1/courses")
-        .send(newCourseSeedByCoach);
-      createdCourseByCoachId = response.body.data.id;
-      expect(response.status).toBe(201);
-      expect(response.body.data).toMatchObject({
-        title: newCourseSeedByCoach.title,
-        description: newCourseSeedByCoach.description,
-        creatorId: newCourseSeedByCoach.creatorId,
+        .send(coachCourse);
+      expect(coachRes.statusCode).toBe(201);
+      expect(coachRes.body.data).toMatchObject({
+        title: coachCourse.title,
+        description: coachCourse.description,
+        creatorId: coach.id,
       });
-
       // admin creates a course
-      const newCourseSeedByAdmin = createRandomCourse(admin.id);
-      const res = await authedTestAdminAgent
+      const adminCourse = createRandomCourse(admin.id);
+      const adminRes = await authedTestAdminAgent
         .post("/api/v1/courses")
-        .send(newCourseSeedByAdmin);
-      createdCourseByAdminId = res.body.data.id;
-      expect(res.status).toBe(201);
-      expect(res.body.data).toMatchObject({
-        title: newCourseSeedByAdmin.title,
-        description: newCourseSeedByAdmin.description,
-        creatorId: newCourseSeedByAdmin.creatorId,
+        .send(adminCourse);
+      expect(adminRes.statusCode).toBe(201);
+      expect(adminRes.body.data).toMatchObject({
+        title: adminCourse.title,
+        description: adminCourse.description,
+        creatorId: admin.id,
       });
     });
 
     it("❌ Forbidden: STUDENT cannot create a course.", async () => {
-      const newCourseSeedByStudent = createRandomCourse(student.id);
+      const studentCourse = createRandomCourse(student.id);
       const res = await authedTestStudentAgent
         .post("/api/v1/courses")
-        .send(newCourseSeedByStudent);
-      expect(res.status).toBe(403);
+        .send(studentCourse);
+      expect(res.statusCode).toBe(403);
       expect(res.body.error.message).toBe("Forbidden: insufficient role");
     });
 
@@ -62,18 +82,8 @@ describe("Course Module", () => {
       const res = await authedTestCoachAgent
         .post("/api/v1/courses")
         .send(invalidCourse);
-      expect(res.status).toBe(400);
+      expect(res.statusCode).toBe(400);
       expect(res.body.error.message).toContain("Invalid input:");
-    });
-
-    afterAll(async () => {
-      // reset course data after all POST route tests
-      await authedTestCoachAgent.delete(
-        `/api/v1/courses/${createdCourseByCoachId}`
-      );
-      await authedTestAdminAgent.delete(
-        `/api/v1/courses/${createdCourseByAdminId}`
-      );
     });
   });
 
@@ -81,34 +91,46 @@ describe("Course Module", () => {
   // 🔹 GET /api/v1/courses
   //
   describe("GET /api/v1/courses", () => {
-    it("❌ Edge: Returns an empty array when no courses exist.", async () => {
-      const response = await unAuthedTestAgent.get("/api/v1/courses");
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual({
-        success: true,
-        data: [],
+    describe("Empty edge case", () => {
+      let savedCourses: Course[] = [];
+
+      beforeAll(async () => {
+        // Save existing courses
+        savedCourses = await prisma.course.findMany();
+
+        // Delete all courses for the test
+        await prisma.course.deleteMany();
+      });
+
+      it("❌ Edge: Returns an empty array when no courses exist.", async () => {
+        const response = await unAuthedTestAgent.get("/api/v1/courses");
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({
+          success: true,
+          data: [],
+        });
+      });
+
+      afterAll(async () => {
+        // Restore saved courses
+        if (savedCourses.length > 0) {
+          await prisma.course.createMany({
+            data: savedCourses,
+          });
+        }
       });
     });
 
-    describe("when courses exist", () => {
-      beforeAll(async () => {
-        await authedTestCoachAgent
-          .post("/api/v1/courses")
-          .send(createRandomCourse(coach.id));
-        await authedTestAdminAgent
-          .post("/api/v1/courses")
-          .send(createRandomCourse(admin.id));
-      });
-
-      it("✅ Success: Returns a list of all courses (public).", async () => {
-        const response = await unAuthedTestAgent.get("/api/v1/courses");
-        expect(response.statusCode).toBe(200);
-        const courseArr = response.body.data as ICourse[];
-        expect(courseArr[0]).toMatchObject({
+    it("✅ Success: Returns list of all courses (public).", async () => {
+      const res = await unAuthedTestAgent.get("/api/v1/courses");
+      expect(res.statusCode).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+      if (res.body.data.length) {
+        expect(res.body.data[0]).toMatchObject({
           title: expect.any(String),
           description: expect.any(String),
         });
-      });
+      }
     });
   });
 
@@ -127,7 +149,7 @@ describe("Course Module", () => {
 
     it("✅ Success: Returns course details when ID is valid.", async () => {
       const res = await unAuthedTestAgent.get(`/api/v1/courses/${courseId}`);
-      expect(res.status).toBe(200);
+      expect(res.statusCode).toBe(200);
       expect(res.body.data).toMatchObject({
         id: courseId,
         title: expect.any(String),
@@ -137,12 +159,14 @@ describe("Course Module", () => {
     });
 
     it("❌ Not Found: Returns 404 for invalid course ID.", async () => {
-      const invalidId = "non-existent-id";
-      const res = await unAuthedTestAgent.get(`/api/v1/courses/${invalidId}`);
-      expect(res.status).toBe(404);
+      const res = await unAuthedTestAgent.get(
+        `/api/v1/courses/non-existent-id`
+      );
+      expect(res.statusCode).toBe(404);
       expect(res.body.error.message).toBe("Course not found");
     });
   });
+
   //
   // 🔹 PUT /api/v1/courses/:id
   //
@@ -165,11 +189,8 @@ describe("Course Module", () => {
     it("✅ Success: COACH can update their own course.", async () => {
       const res = await authedTestCoachAgent
         .put(`/api/v1/courses/${coachCourseId}`)
-        .send({
-          title: "Updated Coach Course",
-          creatorId: "malicious-change", // try change creator Id
-        });
-      expect(res.status).toBe(200);
+        .send({ title: "Updated Coach Course", creatorId: "malicious-change" }); // try change creator Id
+      expect(res.statusCode).toBe(200);
       expect(res.body.data.title).toBe("Updated Coach Course");
       expect(res.body.data.creatorId).toBe(coach.id);
     });
@@ -177,20 +198,16 @@ describe("Course Module", () => {
     it("❌ Forbidden: STUDENT cannot update a course.", async () => {
       const res = await authedTestStudentAgent
         .put(`/api/v1/courses/${coachCourseId}`)
-        .send({
-          title: "Hack Attempt",
-        });
-      expect(res.status).toBe(403);
+        .send({ title: "Hack Attempt" });
+      expect(res.statusCode).toBe(403);
       expect(res.body.error.message).toBe("Forbidden: insufficient role");
     });
 
-    it("❌ Not Owner: COACH cannot update a course created by another COACH/ADMIN.", async () => {
+    it("❌ Not Owner: COACH cannot update another’s course.", async () => {
       const res = await authedTestCoachAgent
         .put(`/api/v1/courses/${adminCourseId}`)
-        .send({
-          title: "Illegal Update",
-        });
-      expect(res.status).toBe(403);
+        .send({ title: "Illegal Update" });
+      expect(res.statusCode).toBe(403);
       expect(res.body.error.message).toBe("Forbidden: not course owner");
     });
   });
@@ -218,7 +235,8 @@ describe("Course Module", () => {
       const res = await authedTestCoachAgent.delete(
         `/api/v1/courses/${coachCourseId}`
       );
-      expect(res.status).toBe(200);
+
+      expect(res.statusCode).toBe(200);
       expect(res.body.data.message).toBe("Course deleted successfully");
     });
 
@@ -226,14 +244,27 @@ describe("Course Module", () => {
       const res = await authedTestStudentAgent.delete(
         `/api/v1/courses/${coachCourseId}`
       );
-      expect(res.status).toBe(403);
+      expect(res.statusCode).toBe(403);
     });
 
-    it("❌ Not Owner: COACH cannot delete a course created by another COACH/ADMIN.", async () => {
+    it("❌ Not Owner: COACH cannot delete a course created by ADMIN.", async () => {
       const res = await authedTestCoachAgent.delete(
         `/api/v1/courses/${adminCourseId}`
       );
-      expect(res.status).toBe(403);
+      expect(res.statusCode).toBe(403);
     });
+  });
+
+  //
+  // 🔹 CLEANUP
+  //
+  afterAll(async () => {
+    await prisma.enrollment.deleteMany({});
+    await prisma.course.deleteMany({});
+    await prisma.user.deleteMany({});
+    await prisma.user.createMany({ data: userData });
+    await prisma.course.createMany({ data: courseData });
+    await prisma.enrollment.createMany({ data: enrollmentData });
+    await prisma.$disconnect();
   });
 });

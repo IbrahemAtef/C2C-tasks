@@ -1,18 +1,12 @@
-import { faker } from "@faker-js/faker";
 import { IUser } from "./user.entity";
 import { createRandomUserOrCoach } from "../../seeds/user.seed";
 import { Roles } from "./util/user.types";
 import { newId, now } from "../../shared/utils/util";
 
-export const randomUsers: IUser[] = faker.helpers.multiple(
-  (_: unknown, __: number) =>
-    createRandomUserOrCoach(
-      faker.helpers.arrayElement([Roles.STUDENT, Roles.COACH])
-    ),
-  {
-    count: 2,
-  }
-);
+export const randomUsers: IUser[] = Array.from({ length: 2 }, (_, i) => {
+  const role = i % 2 === 0 ? Roles.STUDENT : Roles.COACH;
+  return createRandomUserOrCoach(role);
+});
 
 const adminUser: IUser = {
   id: newId(),

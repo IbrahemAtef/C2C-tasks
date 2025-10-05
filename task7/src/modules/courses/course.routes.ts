@@ -3,7 +3,7 @@ import { courseController } from "./course.controller";
 import { isAuthenticated } from "../../shared/middlewares/auth.middleware";
 import { requireRole } from "../../shared/middlewares/role.middleware";
 
-//? ASK: The admin can update , delete any course Or it's own course
+// TODO: enrollments for students
 
 const router = Router();
 

@@ -1,41 +1,35 @@
-export interface IWithId {
-  id: string;
-}
+/**
+ * Generic Repository for Prisma models
+ * @template T - Entity type
+ * @template M - Prisma model delegate type (e.g., PrismaClient['user'])
+ */
+export class GenericRepository<T, M extends { [key: string]: any }> {
+  protected model: M;
 
-export class GenericRepository<T extends IWithId> {
-  private repository = new Map<string, T>();
-
-  findAll(): T[] {
-    return Array.from(this.repository.values());
+  constructor(model: M) {
+    this.model = model;
   }
 
-  findById(id: string): T | undefined {
-    return this.repository.get(id);
+  async findAll(query?: any): Promise<T[]> {
+    return await this.model.findMany(query);
   }
 
-  findByKey<K extends keyof T>(key: K, value: T[K]): T | undefined {
-    for (const entity of this.repository.values()) {
-      if (entity[key] === value) {
-        return entity;
-      }
-    }
-    return undefined;
+  async findById(id: string): Promise<T | null> {
+    return await this.model.findUnique({ where: { id } });
   }
 
-  create(entity: T): T {
-    this.repository.set(entity.id, entity);
-    return entity;
+  async create(data: T): Promise<T> {
+    return await this.model.create({ data });
   }
 
-  update(id: string, partial: Partial<T>): T | undefined {
-    const existing = this.repository.get(id);
-    if (!existing) return undefined;
-    const updated = { ...existing, ...partial } as T;
-    this.repository.set(id, updated);
-    return updated;
+  async update(id: string, data: Partial<T>): Promise<T | null> {
+    const existing = await this.model.findUnique({ where: { id } });
+    if (!existing) return null;
+
+    return await this.model.update({ where: { id }, data });
   }
 
-  delete(id: string): boolean {
-    return this.repository.delete(id);
+  async delete(id: string): Promise<T> {
+    return await this.model.delete({ where: { id } });
   }
 }

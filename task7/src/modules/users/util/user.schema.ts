@@ -27,4 +27,4 @@ export const profileUpdateSchema = userSchema
   })
   .partial();
 
-//?? export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
+export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;

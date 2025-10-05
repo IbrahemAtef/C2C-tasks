@@ -1,8 +1,6 @@
 // src/courses/course.controller.ts
 import { Request, Response, NextFunction } from "express";
-import { CreateCourseData } from "./types/course.dto";
-import { CustomError } from "../../shared/utils/exception";
-import { HttpErrorStatus } from "../../shared/utils/util.types";
+import { CreateCourse, UpdateCourse } from "./types/course.dto";
 import { courseService } from "./course.service";
 import { zodValidation } from "../../shared/utils/zod.util";
 import {
@@ -15,7 +13,7 @@ class CourseController {
   async create(req: Request, res: Response, next: NextFunction) {
     const creatorId = req.user!.sub;
 
-    const payloadData = zodValidation<CreateCourseData>(
+    const payloadData = zodValidation<CreateCourse>(
       createCourseSchema,
       req.body,
       "COURSE"
@@ -54,7 +52,11 @@ class CourseController {
 
     const { id } = zodValidation(courseIdSchema, req.params, "COURSE");
 
-    const payload = zodValidation(updateCourseSchema, req.body, "COURSE");
+    const payload = zodValidation<UpdateCourse>(
+      updateCourseSchema,
+      req.body,
+      "COURSE"
+    );
 
     const updated = await courseService.updateCourse(id, sub, payload);
 

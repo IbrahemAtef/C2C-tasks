@@ -1,30 +1,28 @@
 import { CustomError } from "../../shared/utils/exception";
-import { newId, now } from "../../shared/utils/util";
+import { newId } from "../../shared/utils/util";
 import { HttpErrorStatus } from "../../shared/utils/util.types";
 import { ICourse } from "./course.entity";
 import { courseRepository } from "./course.repository";
-import { CreateCourseData } from "./types/course.dto";
+import { CreateCourse, UpdateCourse } from "./types/course.dto";
 
 class CourseService {
-  createCourse(data: CreateCourseData, creatorId: string) {
+  async createCourse(data: CreateCourse, creatorId: string): Promise<ICourse> {
     const course: ICourse = {
       id: newId(),
       title: data.title,
       description: data.description,
       image: data.image,
       creatorId,
-      createdAt: now(),
-      updatedAt: now(),
     };
-    return courseRepository.create(course);
+    return await courseRepository.create(course);
   }
 
-  getAllCourses(): ICourse[] {
-    return courseRepository.findAll();
+  async getAllCourses(): Promise<ICourse[]> {
+    return await courseRepository.findAll();
   }
 
-  getCourseById(id: string): ICourse {
-    const course = courseRepository.findById(id);
+  async getCourseById(id: string): Promise<ICourse> {
+    const course = await courseRepository.findById(id);
     if (!course)
       throw new CustomError(
         "Course not found",
@@ -34,8 +32,12 @@ class CourseService {
     return course;
   }
 
-  updateCourse(id: string, updaterId: string, data: Partial<ICourse>): ICourse {
-    const course = courseRepository.findById(id);
+  async updateCourse(
+    id: string,
+    updaterId: string,
+    data: UpdateCourse
+  ): Promise<ICourse> {
+    const course = await courseRepository.findById(id);
 
     if (!course)
       throw new CustomError(
@@ -51,13 +53,8 @@ class CourseService {
         HttpErrorStatus.Forbidden
       );
     }
-    // Prevent unsafe updates
-    const { id: _, creatorId: __, createdAt: ___, ...allowedData } = data;
 
-    const updated = courseRepository.update(id, {
-      ...allowedData,
-      updatedAt: now(),
-    });
+    const updated = await courseRepository.update(id, data);
 
     if (!updated)
       throw new CustomError(
@@ -69,8 +66,8 @@ class CourseService {
     return updated;
   }
 
-  deleteCourse(id: string, deleterId: string) {
-    const course = courseRepository.findById(id);
+  async deleteCourse(id: string, deleterId: string) {
+    const course = await courseRepository.findById(id);
 
     if (!course)
       throw new CustomError(
@@ -87,7 +84,7 @@ class CourseService {
       );
     }
 
-    const deleted = courseRepository.delete(id);
+    const deleted = await courseRepository.delete(id);
 
     if (!deleted)
       throw new CustomError(

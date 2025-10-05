@@ -9,8 +9,9 @@ import { HttpErrorStatus } from "../../shared/utils/util.types";
 import { userRepository } from "./user.repository";
 
 class UserService {
-  getUserProfile(id: string): ProtectedUser {
-    const userFound = userRepository.findById(id);
+  async getUserProfile(id: string): Promise<ProtectedUser> {
+    const userFound = await userRepository.findById(id);
+
     if (!userFound)
       throw new CustomError(
         "User profile not found",
@@ -20,27 +21,29 @@ class UserService {
     return removeFields(userFound, ["password", "role"]);
   }
 
-  async updateUser(id: string, payload: UpdateUserData) {
+  async updateUser(
+    id: string,
+    payload: UpdateUserData
+  ): Promise<ProtectedUser> {
     if (payload.password) {
       const hashedValue = await createArgonHash(payload.password);
       payload.password = hashedValue;
     }
-    const updatedUser = userRepository.update(id, payload);
+
+    const updatedUser = await userRepository.update(id, payload);
+
     if (!updatedUser)
       throw new CustomError(
         "User profile not found",
         "USER",
         HttpErrorStatus.NotFound
       );
+
     return removeFields(updatedUser, ["password", "role"]);
   }
 
-  findUserByEmail(email: string): IUser | undefined {
-    return userRepository.findByEmail(email);
-  }
-
   async createUser(payload: CreateUser, role: Role): Promise<ProtectedUser> {
-    const existing = userRepository.findByKey("email", payload.email);
+    const existing = await userRepository.findByEmail(payload.email);
 
     if (existing)
       throw new CustomError(
@@ -61,7 +64,7 @@ class UserService {
       updatedAt: now(),
     };
 
-    const createdUser = userRepository.create(user);
+    const createdUser = await userRepository.create(user);
 
     return removeFields(createdUser, ["password", "role"]);
   }

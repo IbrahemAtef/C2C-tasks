@@ -1,13 +1,14 @@
 import { GenericRepository } from "../../shared/generic_repository";
-import { coursesData } from "./course.data";
+import { prisma } from "../../services/prisma.service";
 import { ICourse } from "./course.entity";
+import { coursesData } from "./course.data";
 
-class CourseRepository extends GenericRepository<ICourse> {
+class CourseRepository extends GenericRepository<
+  ICourse,
+  typeof prisma.course
+> {
   constructor() {
-    super();
-    for (const course of coursesData) {
-      this.create(course);
-    }
+    super(prisma.course);
   }
 }
 
