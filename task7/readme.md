@@ -17,7 +17,19 @@ It follows clean code principles with separation of concerns using **controllers
 
 ```bash
 task7/
+├─ prisma/
+│  ├─ migration/
+│  ├─ seeds/
+│  │  └─ seed.ts
+│  └─ schema.prisma
+│
 ├─ src/
+│  ├─ __tests__/
+│  │  ├─ courses.test.ts
+│  │  ├─ users.test.ts
+│  │  └─ helpers/
+│  │     └─ supertest.helper.ts
+│  │
 │  ├─ modules/
 │  │  ├─ auth/
 │  │  │  ├─ types/
@@ -40,7 +52,9 @@ task7/
 │  │  │  │  └─ course.schema.ts
 │  │  │  │
 │  │  │  ├─ course.controller.ts
+│  │  │  ├─ course.data.ts
 │  │  │  ├─ course.entity.ts
+│  │  │  ├─ course.repository.ts
 │  │  │  ├─ course.routes.ts
 │  │  │  └─ course.service.ts
 │  │  │
@@ -53,9 +67,18 @@ task7/
 │  │     │  └─ user.types.ts
 │  │     │
 │  │     ├─ user.controller.ts
+│  │     ├─ user.data.ts
 │  │     ├─ user.entity.ts
+│  │     ├─ user.repository.ts
 │  │     ├─ user.routes.ts
 │  │     └─ user.service.ts
+│  │
+│  ├─ seeds/
+│  │  ├─ courses.seed.ts
+│  │  └─ users.seed.ts
+│  │
+│  ├─ services/
+│  │  └─ prisma.service.ts
 │  │
 │  └─ shared/
 │     ├─ middlewares/
@@ -75,8 +98,11 @@ task7/
 │     └─ generic_repository.ts
 │
 ├─ .example.env
+├─ .gitignore
+├─ jest.config.js
 ├─ package-lock.json
 ├─ package.json
+├─ readme.md
 ├─ server.ts
 └─ tsconfig.json
 ```
@@ -101,6 +127,7 @@ Create a .env file:
 PORT=your_port_here
 NODE_ENV=your_node_env_here
 JWT_SECRET=your_jwt_secret_here
+DATABASE_URL=your_database_url_here
 ```
 
 ### 4. Run the project
@@ -110,6 +137,26 @@ npm run dev   # development (with ts-node-dev / nodemon)
 npm run build # compile TypeScript
 npm start     # run compiled JS
 ```
+
+## 🌱 Database Seeding
+
+This project includes a simple **Prisma + Faker.js** seeding script to populate fake data for development and testing.
+
+### Run Seeder
+
+```bash
+npm run seed
+```
+
+This command will:
+
+- Generate fake users (students & coaches)
+
+- Generate random courses linked to users
+
+- Prepare consistent data for Jest and Supertest tests
+
+💡 You can modify src/seeds/seed.ts to adjust the number or type of records generated.
 
 ## 📡 API Endpoints
 
@@ -138,18 +185,6 @@ npm start     # run compiled JS
 | POST   | `/coach` | Create coach user |
 | PUT    | `/me`    | Update user data  |
 
-## 🛠️ Tech Stack
-
-- Node.js + Express
-
-- TypeScript
-
-- Zod (for validation)
-
-- Generic Repository Pattern
-
-- REST API
-
 ## 🧪 Running Tests
 
 The project uses Jest for testing and Supertest for API endpoint tests. Tests are located under `src/__tests__/`
@@ -157,17 +192,30 @@ The project uses Jest for testing and Supertest for API endpoint tests. Tests ar
 ### 1. Install Dev Dependencies
 
 Make sure you have dev dependencies installed:
-`bash npm install`
 
-### 2. Run All Tests
+```bash
+npm install
+```
 
-`bash npm run test`
+### 2. Seeding data
+
+Before running tests, make sure the database is seeded:
+
+```bash
+npm run seed
+```
+
+### 3. Run All Tests
+
+```bash
+npm run test
+```
 
 - This will run all `.test.ts` files under `src/__tests__/`.
 
 - The tests cover modules such as **Course**, **User**, and **Auth**.
 
-### 3. Test Folder Structure
+### 4. Test Folder Structure
 
 ```bash
 task7/
@@ -179,7 +227,7 @@ task7/
 │ │     └─ supertest.helper.ts
 ```
 
-### 4. Key Testing Features
+### 5. Key Testing Features
 
 - **Supertest agents** for authenticated/unauthenticated requests.
 
@@ -193,13 +241,51 @@ task7/
 
 - **Data cleanup** after tests using `afterAll` / `afterEach` hooks to reset state.
 
-### 5. Example Test One file
+### 6. Example Test Each module
+
+This will run only the **User module tests**.
 
 ```bash
-npm run test -- src/__tests__/courses.test.ts
+npm run test:user
 ```
 
 This will run only the **Course module tests**.
+
+```bash
+npm run test:course
+```
+
+## 🛠️ Tech Stack
+
+- Node.js + Express
+
+- TypeScript
+
+- Prisma ORM
+
+- Zod (for validation)
+
+- Generic Repository Pattern
+
+- REST API Architecture
+
+- Jest + Supertest (for testing)
+
+- Faker.js (for fake data seeding)
+
+## 🧩 Prisma Commands
+
+If you’re using Prisma ORM, the following commands are available:
+
+| Command                              | Description                                    |
+| ------------------------------------ | ---------------------------------------------- |
+| `npx prisma init`                    | Initialize Prisma in your project              |
+| `npx prisma generate`                | Generate the Prisma client after model updates |
+| `npx prisma migrate dev --name init` | Create and apply migrations in development     |
+| `npx prisma db push`                 | Push schema changes directly to the database   |
+| `npx prisma db seed`                 | Run the seed file to populate fake data        |
+| `npx prisma studio`                  | Launch Prisma Studio (GUI for your database)   |
+| `npx prisma migrate reset`           | Reset the database and reapply migrations      |
 
 ## 👨‍💻 Author
 

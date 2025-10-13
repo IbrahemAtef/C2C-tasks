@@ -5,6 +5,8 @@
   "main": "./dist/server.js",
   "scripts": {
     "test": "jest",
+    "test:course": "npm run test -- src/__tests__/courses.test.ts",
+    "test:user": "npm run test -- src/__tests__/users.test.ts",
     "dev": "tsx watch server.ts",
     "type-check": "tsc --noEmit",
     "seed": "prisma db seed",
