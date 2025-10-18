@@ -5,8 +5,10 @@
   "main": "./dist/server.js",
   "scripts": {
     "test": "jest",
-    "test:course": "npm run test -- src/__tests__/courses.test.ts",
-    "test:user": "npm run test -- src/__tests__/users.test.ts",
+    "test:prisma_course": "npm run test -- src/__tests__/courses.test.ts",
+    "test:prisma_user": "npm run test -- src/__tests__/users.test.ts",
+    "test:mongo_course": "npm run test -- src/__tests__/courses.mongoose.test.ts",
+    "test:mongo_user": "npm run test -- src/__tests__/users.mongoose.test.ts",
     "dev": "tsx watch server.ts",
     "type-check": "tsc --noEmit",
     "seed:prisma": "prisma db seed",

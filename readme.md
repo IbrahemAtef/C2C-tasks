@@ -17,6 +17,9 @@ It follows clean code principles with separation of concerns using **controllers
 
 ```bash
 task7/
+├─ mongo/
+│  └─ seeds/
+│     └─ seed.ts
 ├─ prisma/
 │  ├─ migration/
 │  ├─ seeds/
@@ -26,8 +29,13 @@ task7/
 ├─ src/
 │  ├─ __tests__/
 │  │  ├─ courses.test.ts
+│  │  ├─ users..mongoose.test.ts
 │  │  ├─ users.test.ts
+│  │  ├─ setup/
+│  │  │  └─ global.teardown.ts
+│  │  │
 │  │  └─ helpers/
+│  │     ├─ supertest.helper.mongo.ts
 │  │     └─ supertest.helper.ts
 │  │
 │  ├─ modules/
@@ -59,6 +67,10 @@ task7/
 │  │  │  └─ course.service.ts
 │  │  │
 │  │  └─ user/
+│  │     ├─ interfaces/
+│  │     │  ├─ user_mongoose_repo_interface.ts
+│  │     │  └─ user_prisma_repo_interface.ts
+│  │     │
 │  │     ├─ types/
 │  │     │  └─ user.dto.ts
 │  │     │
@@ -69,7 +81,9 @@ task7/
 │  │     ├─ user.controller.ts
 │  │     ├─ user.data.ts
 │  │     ├─ user.entity.ts
-│  │     ├─ user.repository.ts
+│  │     ├─ user.model.ts
+│  │     ├─ user.mongoose.repository.ts
+│  │     ├─ user.prisma.repository.ts
 │  │     ├─ user.routes.ts
 │  │     └─ user.service.ts
 │  │
@@ -78,6 +92,7 @@ task7/
 │  │  └─ users.seed.ts
 │  │
 │  ├─ services/
+│  │  ├─ mongoose.service.ts
 │  │  └─ prisma.service.ts
 │  │
 │  └─ shared/
@@ -95,7 +110,9 @@ task7/
 │     │  ├─ util.types.ts
 │     │  └─ zod.util.ts
 │     │
-│     └─ generic_repository.ts
+│     ├─ IGenericRepository.ts
+│     ├─ mongoose_repository.ts
+│     └─ prisma_repository.ts
 │
 ├─ .example.env
 ├─ .gitignore
@@ -128,6 +145,7 @@ PORT=your_port_here
 NODE_ENV=your_node_env_here
 JWT_SECRET=your_jwt_secret_here
 DATABASE_URL=your_database_url_here
+MONGODB_URL=your_database_url_here
 ```
 
 ### 4. Run the project
@@ -144,8 +162,16 @@ This project includes a simple **Prisma + Faker.js** seeding script to populate 
 
 ### Run Seeder
 
+- Prisma
+
 ```bash
-npm run seed
+npm run seed:prisma
+```
+
+- Mongoose
+
+```bash
+npm run seed:mongo
 ```
 
 This command will:
@@ -201,30 +227,61 @@ npm install
 
 Before running tests, make sure the database is seeded:
 
-```bash
-npm run seed
-```
-
-### 3. Run All Tests
+- Prisma
 
 ```bash
-npm run test
+npm run seed:prisma
 ```
 
-- This will run all `.test.ts` files under `src/__tests__/`.
+- Mongoose
 
-- The tests cover modules such as **Course**, **User**, and **Auth**.
+```bash
+npm run seed:mongo
+```
+
+### 3. Example Test Each module
+
+This will run only the **User module tests**.
+
+- Prisma
+
+```bash
+npm run test:prisma_user
+```
+
+This will run only the **Course module tests**.
+
+```bash
+npm run test:prisma_course
+```
+
+- Mongoose
+
+```bash
+npm run test:mongo_user
+```
+
+This will run only the **Course module tests**.
+
+```bash
+npm run test:mongo_course
+```
 
 ### 4. Test Folder Structure
 
 ```bash
 task7/
 ├─ src/
-│ ├─ __tests__/
-│ │  ├─ courses.test.ts
-│ │  ├─ users.test.ts
-│ │  └─ helpers/
-│ │     └─ supertest.helper.ts
+│  ├─ __tests__/
+│  │  ├─ courses.test.ts
+│  │  ├─ users..mongoose.test.ts
+│  │  ├─ users.test.ts
+│  │  ├─ setup/
+│  │  │  └─ global.teardown.ts
+│  │  │
+│  │  └─ helpers/
+│  │     ├─ supertest.helper.mongo.ts
+│  │     └─ supertest.helper.ts
 ```
 
 ### 5. Key Testing Features
@@ -240,20 +297,6 @@ task7/
 - **CRUD routes** tested for proper success, forbidden, validation, and edge cases.
 
 - **Data cleanup** after tests using `afterAll` / `afterEach` hooks to reset state.
-
-### 6. Example Test Each module
-
-This will run only the **User module tests**.
-
-```bash
-npm run test:user
-```
-
-This will run only the **Course module tests**.
-
-```bash
-npm run test:course
-```
 
 ## 🛠️ Tech Stack
 
