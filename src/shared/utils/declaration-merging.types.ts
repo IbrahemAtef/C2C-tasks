@@ -2,9 +2,10 @@ import { JWT_PAYLOAD } from "../../modules/auth/util/jwt.util";
 import { UnifiedApiErrorResponse } from "../middlewares/response.middleware";
 
 export type MyEnvs = {
-  PORT: number;
+  PORT: string;
   NODE_ENV: "development" | "production" | "test";
-  JWT_SECRET: "secret";
+  JWT_SECRET: string;
+  MONGODB_URL: string;
 };
 
 declare global {

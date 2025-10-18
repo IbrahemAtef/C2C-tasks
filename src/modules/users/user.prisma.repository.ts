@@ -1,22 +1,25 @@
-import { GenericRepository } from "../../shared/generic_repository";
+import { PrismaRepository } from "../../shared/prisma_repository";
 import { prisma } from "../../services/prisma.service";
-import { IUser } from "./user.entity";
-import { usersData } from "./user.data";
+import { PUser } from "./user.entity";
 import { ProfileUpdateData } from "./util/user.schema";
+import { PUserPrismaRepositoryI } from "./interfaces/user_prisma_repo_interface";
 
-class UserRepository extends GenericRepository<IUser, typeof prisma.user> {
+class UserRepository
+  extends PrismaRepository<PUser, typeof prisma.user>
+  implements PUserPrismaRepositoryI
+{
   constructor() {
     super(prisma.user);
   }
 
-  async findByEmail(email: string): Promise<IUser | null> {
+  async findByEmail(email: string): Promise<PUser | null> {
     return await this.model.findUnique({ where: { email } });
   }
 
   async updateProfile(
     id: string,
     data: ProfileUpdateData
-  ): Promise<IUser | null> {
+  ): Promise<PUser | null> {
     return await this.update(id, data);
   }
 }

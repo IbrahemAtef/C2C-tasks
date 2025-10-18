@@ -8,7 +8,7 @@ export async function initTestAgents() {
   //1- get unauthed agent no token
   const unAuthedTestAgent = supertest.agent(app);
   // 2- get authed agent with invalid token (expired or no id)
-  const userToken = singJWT({ sub: "", role: "STUDENT" });
+  const userToken = singJWT({ sub: "", role: Roles.STUDENT });
 
   const authedTestUserAgent = supertest
     .agent(app)

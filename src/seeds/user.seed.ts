@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
-import { IUser } from "../modules/users/user.entity";
+import { PUser } from "../modules/users/user.entity";
 import { Role } from "../modules/users/util/user.types";
 
 export function createRandomUserOrCoach(role: Role) {
-  const randomUser: IUser = {
+  const randomUser: PUser = {
     id: faker.string.uuid(),
     email: faker.internet.email(),
     name: faker.person.fullName(),

@@ -1,17 +1,17 @@
-import { IUser } from "../../users/user.entity";
+import { PUser } from "../../users/user.entity";
 
 export type LoginDTO = {
   email: string;
   password: string;
 };
 
-export type LoginResponseDTO = Omit<IUser, "password">;
+export type LoginResponseDTO = Omit<PUser, "password">;
 
 export type LoginResponseDTOWithJWT = {
-  data: Omit<IUser, "password" | "role">;
+  data: Omit<PUser, "password" | "role">;
   token: string;
 };
 
-export type RegisterDTO = Pick<IUser, "email" | "name" | "password">;
+export type RegisterDTO = Pick<PUser, "email" | "name" | "password">;
 
-export type RegisterResponseDTO = Omit<IUser, "password" | "role">;
+export type RegisterResponseDTO = Omit<PUser, "password" | "role">;

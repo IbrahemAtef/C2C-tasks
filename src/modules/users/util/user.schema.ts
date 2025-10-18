@@ -1,5 +1,5 @@
 import z, { ZodType } from "zod";
-import { IUser } from "../user.entity";
+import { PUser } from "../user.entity";
 import { Roles } from "./user.types";
 import { CreateUser } from "../types/user.dto";
 
@@ -11,7 +11,7 @@ export const userSchema = z.object({
   role: z.enum(Roles),
   createdAt: z.date(),
   updatedAt: z.date(),
-}) satisfies ZodType<IUser>;
+}) satisfies ZodType<PUser>;
 
 export const coachProfileSchema = userSchema.pick({
   name: true,

@@ -9,7 +9,8 @@
     "test:user": "npm run test -- src/__tests__/users.test.ts",
     "dev": "tsx watch server.ts",
     "type-check": "tsc --noEmit",
-    "seed": "prisma db seed",
+    "seed:prisma": "prisma db seed",
+    "seed:mongo": "tsx mongo/seeds/seed.ts",
     "studio": "prisma studio"
   },
   "keywords": [],
@@ -22,6 +23,7 @@
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.1",
     "zod": "^4.1.5"
   },
   "devDependencies": {

@@ -1,9 +1,13 @@
+import { IGenericRepository } from "./IGenericRepository";
+
 /**
  * Generic Repository for Prisma models
  * @template T - Entity type
  * @template M - Prisma model delegate type (e.g., PrismaClient['user'])
  */
-export class GenericRepository<T, M extends { [key: string]: any }> {
+export class PrismaRepository<T, M extends { [key: string]: any }>
+  implements IGenericRepository<T>
+{
   protected model: M;
 
   constructor(model: M) {
@@ -29,7 +33,8 @@ export class GenericRepository<T, M extends { [key: string]: any }> {
     return await this.model.update({ where: { id }, data });
   }
 
-  async delete(id: string): Promise<T> {
-    return await this.model.delete({ where: { id } });
+  async delete(id: string): Promise<boolean> {
+    const deleted = await this.model.delete({ where: { id } });
+    return Boolean(deleted);
   }
 }

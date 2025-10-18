@@ -1,5 +1,7 @@
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
+// TODO: use mongodb connection
+import "./src/services/mongoose.service";
 import { getEnvOrThrowError } from "./src/shared/utils/util";
 import { userRouter } from "./src/modules/users/user.routes";
 import { CustomError, handleError } from "./src/shared/utils/exception";
