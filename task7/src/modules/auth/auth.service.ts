@@ -13,7 +13,7 @@ import { verifyArgonHash } from "./util/argon.util";
 export class AuthService {
   private _userService = userService;
 
-  public async register(payload: RegisterDTO): Promise<RegisterResponseDTO> {
+  public register(payload: RegisterDTO): Promise<RegisterResponseDTO> {
     return this._userService.createUser(payload, "STUDENT");
   }
 

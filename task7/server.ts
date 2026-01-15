@@ -8,7 +8,7 @@ import { courseRouter } from "./src/modules/courses/course.routes";
 import { HttpErrorStatus } from "./src/shared/utils/util.types";
 import { responseEnhancer } from "./src/shared/middlewares/response.middleware";
 
-const app = express();
+export const app = express();
 const PORT = getEnvOrThrowError("PORT");
 
 // Middlewares
@@ -37,4 +37,6 @@ app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
   handleError(error, res);
 });
 
-app.listen(PORT, () => console.log("App is running in port: " + PORT));
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => console.log("App is running in port: " + PORT));
+}

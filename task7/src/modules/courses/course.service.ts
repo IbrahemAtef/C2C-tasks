@@ -1,13 +1,11 @@
-import { GenericRepository } from "../../shared/generic_repository";
 import { CustomError } from "../../shared/utils/exception";
 import { newId, now } from "../../shared/utils/util";
 import { HttpErrorStatus } from "../../shared/utils/util.types";
 import { ICourse } from "./course.entity";
+import { courseRepository } from "./course.repository";
 import { CreateCourseData } from "./types/course.dto";
 
 class CourseService {
-  private repository = new GenericRepository<ICourse>();
-
   createCourse(data: CreateCourseData, creatorId: string) {
     const course: ICourse = {
       id: newId(),
@@ -18,15 +16,15 @@ class CourseService {
       createdAt: now(),
       updatedAt: now(),
     };
-    return this.repository.create(course);
+    return courseRepository.create(course);
   }
 
   getAllCourses(): ICourse[] {
-    return this.repository.findAll();
+    return courseRepository.findAll();
   }
 
   getCourseById(id: string): ICourse {
-    const course = this.repository.findById(id);
+    const course = courseRepository.findById(id);
     if (!course)
       throw new CustomError(
         "Course not found",
@@ -37,7 +35,7 @@ class CourseService {
   }
 
   updateCourse(id: string, updaterId: string, data: Partial<ICourse>): ICourse {
-    const course = this.repository.findById(id);
+    const course = courseRepository.findById(id);
 
     if (!course)
       throw new CustomError(
@@ -53,9 +51,11 @@ class CourseService {
         HttpErrorStatus.Forbidden
       );
     }
+    // Prevent unsafe updates
+    const { id: _, creatorId: __, createdAt: ___, ...allowedData } = data;
 
-    const updated = this.repository.update(id, {
-      ...data,
+    const updated = courseRepository.update(id, {
+      ...allowedData,
       updatedAt: now(),
     });
 
@@ -70,7 +70,7 @@ class CourseService {
   }
 
   deleteCourse(id: string, deleterId: string) {
-    const course = this.repository.findById(id);
+    const course = courseRepository.findById(id);
 
     if (!course)
       throw new CustomError(
@@ -87,7 +87,7 @@ class CourseService {
       );
     }
 
-    const deleted = this.repository.delete(id);
+    const deleted = courseRepository.delete(id);
 
     if (!deleted)
       throw new CustomError(

@@ -113,14 +113,14 @@ npm start     # run compiled JS
 
 ## 📡 API Endpoints
 
-### Auth Module (/api/auth)
+### Auth Module (/api/v1/auth)
 
 | Method | Endpoint    | Description         |
 | ------ | ----------- | ------------------- |
 | POST   | `/register` | register a new user |
 | POST   | `/login`    | Authenticate a user |
 
-### Course Module (/api/courses)
+### Course Module (/api/v1/courses)
 
 | Method | Endpoint | Description                     |
 | ------ | -------- | ------------------------------- |
@@ -130,7 +130,7 @@ npm start     # run compiled JS
 | patch  | `/:id`   | Update course by ID for creator |
 | DELETE | `/:id`   | Delete course by ID for creator |
 
-### User Module (/api/users)
+### User Module (/api/v1/users)
 
 | Method | Endpoint | Description       |
 | ------ | -------- | ----------------- |
@@ -149,6 +149,57 @@ npm start     # run compiled JS
 - Generic Repository Pattern
 
 - REST API
+
+## 🧪 Running Tests
+
+The project uses Jest for testing and Supertest for API endpoint tests. Tests are located under `src/__tests__/`
+
+### 1. Install Dev Dependencies
+
+Make sure you have dev dependencies installed:
+`bash npm install`
+
+### 2. Run All Tests
+
+`bash npm run test`
+
+- This will run all `.test.ts` files under `src/__tests__/`.
+
+- The tests cover modules such as **Course**, **User**, and **Auth**.
+
+### 3. Test Folder Structure
+
+```bash
+task7/
+├─ src/
+│ ├─ __tests__/
+│ │  ├─ courses.test.ts
+│ │  ├─ users.test.ts
+│ │  └─ helpers/
+│ │     └─ supertest.helper.ts
+```
+
+### 4. Key Testing Features
+
+- **Supertest agents** for authenticated/unauthenticated requests.
+
+- **Seeded dynamic data** using Faker.js.
+
+- **Zod validation checks** for invalid requests.
+
+- **Role-based access control tests** (ADMIN, COACH, STUDENT).
+
+- **CRUD routes** tested for proper success, forbidden, validation, and edge cases.
+
+- **Data cleanup** after tests using `afterAll` / `afterEach` hooks to reset state.
+
+### 5. Example Test One file
+
+```bash
+npm run test -- src/__tests__/courses.test.ts
+```
+
+This will run only the **Course module tests**.
 
 ## 👨‍💻 Author
 
